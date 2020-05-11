@@ -1,6 +1,7 @@
 <script>
 	export default {
 		onLaunch: function() {
+			wx.cloud.init()
 			console.log('App Launch')
 		},
 		onShow: function() {

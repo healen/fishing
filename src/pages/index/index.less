@@ -1,0 +1,99 @@
+.content{
+	.header{
+		height: 260upx;
+		width: 100%;
+		position: relative;
+		.bg{
+			width: 100%;
+			height: 260upx;
+		}
+		.avatar{
+			position: absolute;
+			width: 140upx;
+			height: 140upx;
+			right: 20upx;
+			bottom: -48upx;
+			border-radius: 20upx;
+			box-shadow: 1upx 1upx 5upx rgba(0,0,0,.5);
+		}
+		.text{
+			position: absolute;
+			right: 185upx;
+			text-align: right;
+			height: 120upx;
+			line-height: 60upx;
+			bottom: -58upx;
+			.name{
+				font-size: 32upx;
+				font-weight: bold;
+				color: #FFFFFF;
+			}
+			.add{
+				padding:0 0 20upx 0;
+				display: inline;
+				color: #DD524D;
+			}
+			.desc{
+				font-size: 28upx;
+				color: #666;
+			}
+			
+		}
+	}
+	.listview{
+		.inview{
+			margin-top: 100rpx;
+			.list{
+				display: flex;
+				.avatarsamll{
+					width: 80upx;
+					height: 80upx;
+					border-radius: 6upx;
+					margin-right: 20upx;
+				}
+				.right{
+					flex: 1;
+					.name{
+						color: #b487fe;
+						font-size: 30rpx;
+						font-weight: bold;
+						margin-bottom: 16upx;
+					}
+					.con{
+						font-size: 28rpx;
+						color: #555555;
+						margin-bottom: 16upx;
+					}
+					.time{
+						font-size: 26upx;
+						color: #999999;
+					}
+	
+				}
+				.picbox{
+					display: flex;
+					flex-wrap: wrap;
+					margin-bottom: 16upx;
+					.pis{
+						margin-right: 20upx;
+						margin-bottom: 20upx;
+						width: 250upx;
+						height: 250upx;
+						image{
+							width: 250upx;
+							height: 250upx;
+						}
+					}
+				}
+			}
+		}
+		height: 100vh;
+		.list{
+			padding: 25upx 35upx;
+			border-bottom: 1upx solid #ededed;
+		}
+			
+			
+	}
+	
+}
