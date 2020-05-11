@@ -1,0 +1,1 @@
+const config = {  appid:'wxb6a27ad25a37c5f2',  secret:'85065f9d2a10187b15f205dc4c29c9f4'}export default config

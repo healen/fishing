@@ -1,0 +1,1 @@
+import getOpenid from './src/getOpenid'export {  getOpenid}
