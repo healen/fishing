@@ -1,0 +1,1 @@
+<template>  <div class="auth">    <button type="primary" open-type="getUserInfo" @getuserinfo="bindGetUserInfo">授权</button>  </div></template><script>  export default {    name: "auth",    methods:{      bindGetUserInfo() {        uni.redirectTo({          url:'../index/index'        })      },    }  }</script><style scoped></style>

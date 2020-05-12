@@ -66,6 +66,7 @@
     "mp-weixin" : {
         /* 微信小程序特有相关 */
         "appid" : "wxb6a27ad25a37c5f2",
+        "cloudfunctionRoot": "./functions/", // 这一行就是标记云函数目录的字段
         "setting" : {
             "urlCheck" : false,
             "es6" : true,

@@ -3,13 +3,19 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "爆护圈儿"
+				"navigationBarTitleText": "爆户圈儿"
 			}
 		},
 		{
 			"path": "pages/add/add",
 			"style": {
-				"navigationBarTitleText": "添加爆护点"
+				"navigationBarTitleText": "添加爆户点"
+			}
+		},
+		{
+			"path": "pages/auth/auth",
+			"style": {
+				"navigationBarTitleText": "授权"
 			}
 		}
 	],

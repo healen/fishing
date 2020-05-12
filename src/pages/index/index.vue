@@ -41,9 +41,7 @@
         </div>
       </div>
     </scroll-view>
-    <div class="auth" v-if="showAuth">
-      <button type="primary" open-type="getUserInfo" @getuserinfo="bindGetUserInfo">授权</button>
-    </div>
+
   </view>
 </template>
 
@@ -54,9 +52,9 @@
   const user = db.collection('user')
   const basan = db.collection('basan')
   const _ = db.command
-  import {getOpenid} from '@/uitils'
 
   import Vue from 'vue'
+  import {getOpenid} from '@/uitils'
 
   export default {
     data() {
@@ -72,15 +70,13 @@
         },
       }
     },
-    onShow() {
+    async onShow() {
       this.isGetLocation();
-      this.renderList(0)
-    },
-    async onLoad() {
+      this.renderList(0);
       let openid = await getOpenid()
       if (openid) {
-        uni.setStorageSync('openid', openid)
-        this.openid = openid
+
+        uni.setStorageSync('openid',openid)
         this.initPage(openid)
       } else {
         uni.showToast({
@@ -88,6 +84,9 @@
           icon: 'none'
         })
       }
+    },
+    async onLoad() {
+
     },
     methods: {
       renderList(skip = 0) {
@@ -104,7 +103,6 @@
               console.error('the watch closed because of error', err)
             }
           })
-
       },
       refsList(skip = 0) {
         basan
@@ -115,8 +113,6 @@
           .then(res => {
             this.list = res.data
           })
-
-
       },
 
 
@@ -127,7 +123,6 @@
       },
 
       initPage(openid) {
-
         uni.getSetting({
           success: (res) => {
             if (res.authSetting['scope.userInfo']) {
@@ -144,8 +139,9 @@
                 }
               })
             } else {
-              this.showAuth = true
-
+              uni.redirectTo({
+                url: '../auth/auth'
+              })
             }
           }
         })
@@ -175,8 +171,6 @@
               fishingDot,
               favorites,
               createTime,
-              lat,
-              lon
             } = this.userInfo
             user.add({
               data: {
@@ -188,8 +182,6 @@
                 fishingDot,
                 favorites,
                 createTime,
-                lat,
-                lon
               }
             }).then(info => {
               let {
@@ -207,13 +199,9 @@
                   uni.setStorageSync('userInfo', data[0])
                 })
               }
-
             })
-
           }
         })
-
-
       },
 
 
@@ -236,11 +224,10 @@
         var that = this;
         uni.authorize({
           scope: a,
-          success() { //1.1 允许授权
+          success() {
             that.getLocationInfo();
           },
-          fail() { //1.2 拒绝授权
-
+          fail() {
             console.log("你拒绝了授权，无法获得周边信息")
           }
         })
@@ -250,11 +237,6 @@
         uni.getLocation({
           type: 'wgs84',
           success(res) {
-            console.log("你当前经纬度是：")
-            console.log(res)
-
-            Vue.set(that.userInfo, 'lat', res.latitude.toString())
-            Vue.set(that.userInfo, 'lon', res.longitude.toString())
           }
         });
       },
@@ -271,9 +253,9 @@
         });
       },
       goAddData() {
-        uni.navigateTo({
-          url: '/pages/add/add',
-        });
+
+        this.isGetLocation()
+
       },
     }
   }
