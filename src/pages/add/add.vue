@@ -128,7 +128,7 @@
           }
           Promise.all(promiseArr).then(res => {//等数组都做完后做then方法
             // console.log("图片上传完成后再执行")
-            let {fileIDs, desc, lat, lon, province, city, district, street} = this
+            let {fileIDs, desc, lat, lon, province, city, district, street,street_number} = this
 
 
 
@@ -154,6 +154,7 @@
                   city,
                   district,
                   street,
+                  street_number,
                   fishsingDot: 1
 
                 }
@@ -204,15 +205,13 @@
                 console.log("中文位置")
                 console.log(re.data.result.address_component)
 
-                let {province, city, district, street} = re.data.result.address_component
-
+                let {province, city, district, street,street_number} = re.data.result.address_component
 
                 that.province = province;
                 that.city = city;
-
                 that.district = district;
-
                 that.street = street;
+                that.street_number = street_number
 
 
                 if (re.statusCode === 200) {

@@ -9,16 +9,31 @@
 		{
 			"path": "pages/add/add",
 			"style": {
-				"navigationBarTitleText": "添加爆户点"
+				"navigationBarTitleText": "添加钓点"
 			}
 		},
 		{
-			"path": "pages/auth/auth",
+			"path": "pages/me/me",
 			"style": {
-				"navigationBarTitleText": "授权"
+				"navigationBarTitleText": "我的"
 			}
 		}
 	],
+	"tabBar": {
+		"backgroundColor":"#fffbf7",
+		"selectedColor":"#DD524D",
+	    "list": [{
+	      "pagePath": "pages/index/index",
+	      "text": "首页",
+		  "iconPath":"static/index.png",
+		  "selectedIconPath":"static/indexselect.png"
+	    }, {
+	      "pagePath": "pages/me/me",
+	      "text": "我的",
+		  "iconPath":"static/me.png",
+		  "selectedIconPath":"static/meselect.png"
+	    }]
+	  },
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
