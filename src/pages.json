@@ -17,6 +17,12 @@
 			"style": {
 				"navigationBarTitleText": "我的"
 			}
+		},
+		{
+			"path": "pages/basanDetail/basanDetail",
+			"style": {
+				"navigationBarTitleText": "钓点详情"
+			}
 		}
 	],
 	"tabBar": {

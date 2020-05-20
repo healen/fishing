@@ -155,12 +155,13 @@
                   district,
                   street,
                   street_number,
-                  fishsingDot: 1
+                  fishsingDot: 1,
+				  reviewed:0
 
                 }
 
               }).then(res => {
-                uni.redirectTo({
+                uni.switchTab({
                   url: '/pages/index/index'
                 })
               })

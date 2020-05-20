@@ -4,15 +4,29 @@
 			<div class="header">
 				<image src="@/static/indexbanner.png" class="bg" mode="scaleToFill"></image>
 
-				<div class="text">
-					<div class="name">{{userInfo.nickName}}</div>
-					<div class="desc">
-						{{userInfo.desc||''}}
-						<!-- <navigator class="add" url="../add/add">钓点</navigator> -->
+				<div v-if="!notLogin">
+					<div class="text">
+						<div class="name" >{{userInfo.nickName}}</div>
+						<div class="desc">
+							{{userInfo.desc||''}}
+						</div>
 					</div>
+					<image :src="userInfo.avatarUrl" mode="scaleToFill" class="avatar"></image>
 				</div>
 
-				<image :src="userInfo.avatarUrl" mode="scaleToFill" class="avatar"></image>
+				<div v-else>
+
+					<div class="text">
+						<div class="name">未登录</div>
+						<div class="desc">
+							<button size="mini" class="loginbtn" @click="bindLogin">登陆/注册</button>
+						</div>
+					</div>
+					<image src="@/static/notlogin.png" mode="scaleToFill" class="avatar notlogin"></image>
+
+				</div>
+
+
 			</div>
 			<div class="inview">
 				<div class="list" v-for="(item,index) in list" :key="index">
@@ -30,32 +44,18 @@
 						</div>
 
 						<div class="time">
-							{{item.createTimeShow}}
+							{{item.createTimeShow.slice(0,8)}}
 							{{item.city}} {{item.district}}
-
-							<span class="goto" @click="goto(item.lat,item.lon,item.street_number)">去这里</span>
+							<span class="goto" @click="goDetail(item._id)">查看详情</span>
 
 						</div>
 					</div>
-
-
 				</div>
+				<div class='loadingbar' v-if="showLoading">{{loadingText}}</div>
 			</div>
 		</scroll-view>
-
-
-		<div class="auth" v-if="showAuth">
-			<div class="autncontent">
-				<div class="title">您还没有注册，是否注册?</div>
-				<div class="discribe">
-					<p class='sam'>我们会获取您的昵称、头像等信息</p>
-				</div>
-				<div class="buttonbox">
-					<navigator class="cancel" target="miniProgram" open-type="exit" >取消</navigator>
-					<button class="ok" type="primary"  open-type="getUserInfo" @getuserinfo="bindGetUserInfo">一键注册</button>
-				</div>
-			</div>
-		</div>
+		
+		<auth :show="showAuth" @cancel="bindCancel()" @auth="bindGetUserInfo"/>
 
 
 	</view>
@@ -70,6 +70,7 @@
 	const _ = db.command
 
 	import Vue from 'vue'
+	import auth from '@/components/auth/index.vue'
 	import {
 		getOpenid
 	} from '@/uitils'
@@ -80,23 +81,42 @@
 				title: 'Hello',
 				list: [],
 				count: 0,
-				limit: 20,
+				limit: 10,
 				openid: '',
-				skip:0,
+				skip: 0,
 				showAuth: false,
+				notLogin: false,
+				loadingText:'',
+				showLoading:false,
+				
 				userInfo: {
+					nickName:'',
 					sign: null
 				},
 			}
 		},
+		components:{
+			auth
+		},
 		async onShow() {
+			
+			if(uni.getStorageSync('userInfo')){
+				this.showAuth = false
+				this.notLogin = false
+			}
+			
+			
 			this.isGetLocation();
-			this.renderList(this.skip);
+			this.refsList(this.skip);
 			let openid = await getOpenid()
 			if (openid) {
 				uni.setStorageSync('openid', openid)
 				this.openid = openid
+				
+				
 				this.initPage(openid)
+				
+				
 			} else {
 				uni.showToast({
 					title: 'openid 获取失败',
@@ -108,38 +128,21 @@
 
 		},
 		methods: {
-			
-			bindCancel(){
+			// 取消授权
+			bindCancel() {
 				this.showAuth = false
 			},
-			goto(lat, lon, numbers) {
-				wx.getLocation({ //获取当前经纬度
-					type: 'wgs84', //返回可以用于wx.openLocation的经纬度，官方提示bug: iOS 6.3.30 type 参数不生效，只会返回 wgs84 类型的坐标信息
-					success: function(res) {
-						wx.openLocation({ //​使用微信内置地图查看位置。
-							latitude: lat * 1, //要去的纬度-地址
-							longitude: lon * 1, //要去的经度-地址
-							name: numbers,
-							address: numbers
-						})
-					}
+			
+			goDetail(id){
+				uni.navigateTo({
+					url:`../basanDetail/basanDetail?id=${id}`
 				})
 			},
-			renderList(skip = 0) {
-				let that = this
-				basan
-					.orderBy('createTime', 'desc')
-					.limit(this.limit)
-					.skip(skip)
-					.watch({
-						onChange: function() {
-							that.refsList(skip)
-						},
-						onError: function(err) {
-							console.error('the watch closed because of error', err)
-						}
-					})
-			},
+
+			// 去这里
+		
+
+			// 刷新钓点列表
 			refsList(skip = 0) {
 				basan
 					.orderBy('createTime', 'desc')
@@ -147,20 +150,59 @@
 					.skip(skip)
 					.get()
 					.then(res => {
-						this.list = res.data
+						
+						if(skip==0){
+							this.list = res.data
+						}else{
+							if(res.data.length!==0){
+								this.loadingText = '钓点加载中...'
+								this.list.push(...res.data)
+								this.showLoading = false
+							}else{
+								// this.loadingText = '没有更多钓点了...'
+								// setTimeout(()=>{
+								// 	this.showLoading = false
+									
+								// },1000)
+							}
+							
+						}
+						
+						
 					})
 			},
+
+			// 滚动到底部
 			nextPage() {
-				uni.showToast({
-					title: '滚动到底部了'
-				});
+				
+				let count = basan.count
+				
+				let page = Math.ceil(count/this.limit)
+				
+				if(this.skip<=page){
+					this.skip++
+					this.loadingText = '钓点加载中...'
+					this.showLoading = true
+					this.refsList(this.skip)
+				}else{
+					this.loadingText = '没有更多钓点了...'
+					setTimeout(()=>{
+						this.showLoading = false
+						
+					},1000)
+				}
+				
+				
+				
+			},
+			bindLogin() {
+				this.showAuth = true
 			},
 
 			initPage(openid) {
 				uni.getSetting({
 					success: (res) => {
 						if (res.authSetting['scope.userInfo']) {
-							console.log('授权过了')
 							user.where({
 								'_openid': openid
 							}).get().then(res => {
@@ -175,7 +217,9 @@
 								}
 							})
 						} else {
-							this.showAuth = true
+							uni.removeStorageSync('userInfo')
+							this.notLogin = true
+							
 						}
 					}
 				})
@@ -209,6 +253,8 @@
 						user.add({
 							data: {
 								nickName: nickName,
+								desc:'',
+								purview:'',
 								city,
 								province,
 								avatarUrl,
@@ -253,6 +299,7 @@
 						this.userInfo = data[0]
 						uni.setStorageSync('userInfo', data[0])
 					}
+					this.notLogin = false
 				})
 			},
 
