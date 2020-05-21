@@ -33,6 +33,9 @@
 				<div class="list" @click='nonono'>
 					我的钓点
 				</div>
+				
+				
+				<div class="list" v-if="userInfo._openid=='oUYIK0UjzBEtB_h8kX-wRF9jxfTE' || userInfo._openid=='oUYIK0S40dCzIiMHHZwYLE_YxYeo'" @click="goAdminIndex">钓点管理</div>
 
 
 
@@ -83,6 +86,11 @@
 				uni.showToast({
 					title: '功能开发中...',
 					icon: 'none'
+				})
+			},
+			goAdminIndex(){
+				uni.navigateTo({
+					url:'../adminIndex/adminIndex'
 				})
 			},
 

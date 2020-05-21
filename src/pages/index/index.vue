@@ -39,7 +39,7 @@
 
 						<div class="time">
 							{{item.createTimeShow.slice(0,8)}}
-							{{item.city}} {{item.district}}
+							{{item.address}}
 							<span class="goto" @click="goDetail(item._id)">查看详情</span>
 
 						</div>
@@ -88,6 +88,11 @@
 					sign: null
 				},
 			}
+		},
+		
+		
+		onShareAppMessage(){
+			
 		},
 		components:{
 			auth
@@ -140,6 +145,9 @@
 			refsList(skip = 0) {
 				basan
 					.orderBy('createTime', 'desc')
+					.where({
+						'reviewed':1
+					})
 					.limit(this.limit)
 					.skip(skip)
 					.get()
@@ -169,7 +177,9 @@
 			// 滚动到底部
 			nextPage() {
 				
-				let count = basan.count
+				let count = basan.where({
+						'reviewed':1
+					}).count
 				
 				let page = Math.ceil(count/this.limit)
 				

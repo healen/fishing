@@ -23,6 +23,12 @@
 			"style": {
 				"navigationBarTitleText": "钓点详情"
 			}
+		},
+		{
+			"path": "pages/adminIndex/adminIndex",
+			"style": {
+				"navigationBarTitleText": "钓点管理"
+			}
 		}
 	],
 	"tabBar": {

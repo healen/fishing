@@ -192,7 +192,7 @@
                   street,
                   street_number,
                   fishsingDot: 1,
-				  reviewed:0,
+				  reviewed:1,
 				  address,
 				  addressInfo,
 				  basanType,

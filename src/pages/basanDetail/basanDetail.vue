@@ -25,30 +25,22 @@
 		<div class="p1">
 			鱼种:{{detail.fishType}}
 		</div>
-		
-		
-		
-		
-		
 		<div class='labels'>[发布人]</div>
 		<div class="bottom">
 			<div>发布人：{{detail.creater.nickName}}</div>
 			<div>发布时间：{{detail.createTimeShow}}</div>
 		</div>
-		
-		
-		
-		
 		<div class='labels'>[现场照片]</div>
-		
 		<div class="imgs">
 			<div class="imglist" v-for="(pice,index) in detail.pictures" :key="index">
 				<image :src="pice" mode="widthFix"></image>
 			</div>
 		</div>
-		
-		
-	
+		<div v-if="reviewed" class='admins'>
+			<div class='labels'>审核状态：{{detail.reviewed==0?'审核未通过':'审核通过'}}</div>
+			<button type="primary" @click="bindReview(1)">钓点真实，允许通过</button>
+			<button type="warn" @click="bindReview(0)">钓点不真实，不准通过</button>
+		</div>
 	</div>
 </template>
 
@@ -65,13 +57,20 @@
 		data() {
 			return {
 				detail: null,
-				markers: {}
+				markers: {},
+				reviewed:0
 			}
+		},
+		onShareAppMessage(){
+			
 		},
 		onLoad(options) {
 			let {
-				id
+				id,
+				reviewed
 			} = options
+			this.reviewed = reviewed||0
+
 			uni.showLoading()
 			basan.doc(id).get().then(res => {
 				uni.hideLoading()
@@ -86,6 +85,23 @@
 			})
 		},
 		methods:{
+			
+			
+			
+			bindReview(reviewed){
+				basan.doc(this.detail._id).update({
+					data:{
+						reviewed:reviewed
+					},
+					success(){
+						uni.navigateBack()
+					}
+				})
+				
+			},
+			
+			
+			
 			goto(lat, lon, numbers,ad) {
 				wx.getLocation({ //获取当前经纬度
 					type: 'gcj02', //返回可以用于wx.openLocation的经纬度，官方提示bug: iOS 6.3.30 type 参数不生效，只会返回 wgs84 类型的坐标信息
