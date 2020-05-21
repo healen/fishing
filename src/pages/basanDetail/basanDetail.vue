@@ -1,26 +1,45 @@
 <template>
-	<div class="detail">
+	<div class="detail" v-if="detail">
 		
 		
-		<div class="h2">
+		<div class='labels'>[地址]</div>
+		<map class="map" :latitude="detail.lat" show-location :longitude="detail.lon" scale="12" :markers="markers" style="width:100%"></map>
+		<div class="address">
+			<div class="info">
+				地址:{{detail.addressInfo}}
+				<span class="readdr" @click="goto(detail.lat,detail.lon,detail.street,detail.street_number)">去这里</span>
+			</div>
+		</div>
+		
+		<div class='labels'>[描述]</div>
+		
+		<div class="p">
 			{{detail.desc}}
 		</div>
 		
-		<div class="bottom">
-			<div>发布人：{{detail.creater.nickName}}</div>
-			<div>发布时间：{{detail.createTimeShow}}</div>
-			<div>地址：{{detail.city}} {{detail.street}} {{detail.street_number}}</div>
+		
+		<div class="p1">
+			钓点类型:{{detail.basanType}}
+		</div>
+		
+		<div class="p1">
+			鱼种:{{detail.fishType}}
 		</div>
 		
 		
 		
 		
-		<map class="map" :latitude="detail.lat" show-location :longitude="detail.lon" :markers="markers" style="width:100%"></map>
 		
-		<button type="primary" class="btn" @click="goto(detail.lat,detail.lon,detail.street,detail.street_number)">我要去这里</button>
+		<div class='labels'>[发布人]</div>
+		<div class="bottom">
+			<div>发布人：{{detail.creater.nickName}}</div>
+			<div>发布时间：{{detail.createTimeShow}}</div>
+		</div>
 		
 		
-		<div class="title">[渔货]</div>
+		
+		
+		<div class='labels'>[现场照片]</div>
 		
 		<div class="imgs">
 			<div class="imglist" v-for="(pice,index) in detail.pictures" :key="index">
@@ -53,7 +72,9 @@
 			let {
 				id
 			} = options
+			uni.showLoading()
 			basan.doc(id).get().then(res => {
+				uni.hideLoading()
 				if (res.errMsg == 'document.get:ok') {
 					this.detail = res.data
 
@@ -67,7 +88,7 @@
 		methods:{
 			goto(lat, lon, numbers,ad) {
 				wx.getLocation({ //获取当前经纬度
-					type: 'wgs84', //返回可以用于wx.openLocation的经纬度，官方提示bug: iOS 6.3.30 type 参数不生效，只会返回 wgs84 类型的坐标信息
+					type: 'gcj02', //返回可以用于wx.openLocation的经纬度，官方提示bug: iOS 6.3.30 type 参数不生效，只会返回 wgs84 类型的坐标信息
 					success: function(res) {
 						wx.openLocation({ //​使用微信内置地图查看位置。
 							latitude: lat * 1, //要去的纬度-地址

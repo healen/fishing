@@ -3,7 +3,6 @@
 		<scroll-view class="listview" @scrolltolower='nextPage' scroll-y="true">
 			<div class="header">
 				<image src="@/static/indexbanner.png" class="bg" mode="scaleToFill"></image>
-
 				<div v-if="!notLogin">
 					<div class="text">
 						<div class="name" >{{userInfo.nickName}}</div>
@@ -13,9 +12,7 @@
 					</div>
 					<image :src="userInfo.avatarUrl" mode="scaleToFill" class="avatar"></image>
 				</div>
-
 				<div v-else>
-
 					<div class="text">
 						<div class="name">未登录</div>
 						<div class="desc">
@@ -23,10 +20,7 @@
 						</div>
 					</div>
 					<image src="@/static/notlogin.png" mode="scaleToFill" class="avatar notlogin"></image>
-
 				</div>
-
-
 			</div>
 			<div class="inview">
 				<div class="list" v-for="(item,index) in list" :key="index">
