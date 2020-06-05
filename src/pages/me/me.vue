@@ -8,13 +8,13 @@
 					<div class='nick'>{{userInfo.nickName}}</div>
 					<div class="discribe">{{userInfo.desc}}</div>
 					<div class='fishing'>
-						渔点: {{userInfo.fishingDot}}
+						渔点: {{userInfo.point}}
 					</div>
 				</div>
 				<div v-else>
 					<image src="@/static/notlogin.png" mode="scaleToFill" class="avatar notlogin"></image>
 					<div class='nick'>未登录</div>
-					<button size="mini" class="loginbtn" @click="bindLogin">登陆/注册</button>
+					<button size="mini" class="loginbtn" @click="bindLogin">登陆</button>
 				</div>
 			</div>
 			<div class="cont">

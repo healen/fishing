@@ -2,25 +2,25 @@
 	<view class="content">
 		<scroll-view class="listview" @scrolltolower='nextPage' scroll-y="true">
 			<div class="header">
-				<image src="@/static/indexbanner.png" class="bg" mode="scaleToFill"></image>
-				<div v-if="!notLogin">
-					<div class="text">
-						<div class="name" >{{userInfo.nickName}}</div>
-						<div class="desc">
-							{{userInfo.desc||''}}
-						</div>
-					</div>
+				<image src="@/static/indexbanner.png" class="bg" mode="aspectFill"></image>
+				<template v-if="!notLogin">
 					<image :src="userInfo.avatarUrl" mode="scaleToFill" class="avatar"></image>
-				</div>
-				<div v-else>
 					<div class="text">
-						<div class="name">未登录</div>
-						<div class="desc">
-							<button size="mini" class="loginbtn" @click="bindLogin">登陆/注册</button>
+						<div class="name">
+							{{userInfo.nickName}}大师
+							<div class="wecom">{{wecom}}</div>
 						</div>
 					</div>
+				</template>
+				<template v-else>
 					<image src="@/static/notlogin.png" mode="scaleToFill" class="avatar notlogin"></image>
-				</div>
+					<div class="text">
+						<div class="name">大师！您还没登录！</div>
+						<div class="desc">
+							<button size="mini" class="loginbtn" @click="bindLogin">快速登陆</button>
+						</div>
+					</div>
+				</template>
 			</div>
 			<div class="inview">
 				<div class="list" v-for="(item,index) in list" :key="index">
@@ -48,8 +48,8 @@
 				<div class='loadingbar' v-if="showLoading">{{loadingText}}</div>
 			</div>
 		</scroll-view>
-		
-		<auth :show="showAuth" @cancel="bindCancel()" @auth="bindGetUserInfo"/>
+
+		<auth :show="showAuth" @cancel="bindCancel()" @auth="bindGetUserInfo" />
 
 
 	</view>
@@ -66,13 +66,17 @@
 	import Vue from 'vue'
 	import auth from '@/components/auth/index.vue'
 	import {
-		getOpenid
-	} from '@/uitils'
+		getOpenid,
+		getUserByOpenid,
+		regUser
+	} from '@/service'
 
 	export default {
 		data() {
 			return {
 				title: 'Hello',
+				lon:'',
+				lat:'',
 				list: [],
 				count: 0,
 				limit: 10,
@@ -80,47 +84,64 @@
 				skip: 0,
 				showAuth: false,
 				notLogin: false,
-				loadingText:'',
-				showLoading:false,
-				
+				loadingText: '',
+				showLoading: false,
 				userInfo: {
-					nickName:'',
+					nickName: '',
 					sign: null
 				},
 			}
 		},
-		
-		
-		onShareAppMessage(){
-			
+		computed: {
+			wecom() {
+				let d = new Date().getHours()
+				if (d >= 0 && d < 5) {
+					return '深夜了，再守一会儿，有大鱼哟！'
+				} else if (d >= 5 && d < 7) {
+					return '早上好！这个时候，鱼刚睡醒处于懵逼状态，好钓哟！'
+				} else if (d >= 7 && d < 12) {
+					return '上午好！抓紧占钓位哟！'
+				} else if (d >= 12 && d < 14) {
+					return '中午好！中午要钓深哟！'
+				} else if (d >= 14 && d < 18) {
+					return '下午好！快点抽吧！来口了哟！'
+				} else if (d >= 18 && d < 24) {
+					return '晚上好！快去夜钓吧，有大鱼哟！'
+				}
+			}
 		},
-		components:{
+
+
+		onShareAppMessage() {
+
+		},
+		components: {
 			auth
 		},
 		async onShow() {
-			
-			if(uni.getStorageSync('userInfo')){
+			if (uni.getStorageSync('userInfo')) {
 				this.showAuth = false
 				this.notLogin = false
 			}
-			
-			
 			this.isGetLocation();
 			this.refsList(this.skip);
-			let openid = await getOpenid()
-			if (openid) {
-				uni.setStorageSync('openid', openid)
-				this.openid = openid
-				
-				
-				this.initPage(openid)
-				
-				
-			} else {
-				uni.showToast({
-					title: 'openid 获取失败',
-					icon: 'none'
-				})
+			try {
+
+				let openid = await getOpenid()
+				if (openid) {
+					uni.setStorageSync('openid', openid)
+					this.openid = openid
+					this.initPage(openid)
+
+				} else {
+					uni.showToast({
+						title: 'openid 获取失败',
+						icon: 'none'
+					})
+				}
+
+			} catch (e) {
+				console.error(e)
 			}
 		},
 		async onLoad() {
@@ -131,159 +152,161 @@
 			bindCancel() {
 				this.showAuth = false
 			},
-			
-			goDetail(id){
+
+			goDetail(id) {
 				uni.navigateTo({
-					url:`../basanDetail/basanDetail?id=${id}`
+					url: `../basanDetail/basanDetail?id=${id}`
 				})
 			},
 
 			// 去这里
-		
+
 
 			// 刷新钓点列表
 			refsList(skip = 0) {
 				basan
 					.orderBy('createTime', 'desc')
 					.where({
-						'reviewed':1
+						'reviewed': 1
 					})
 					.limit(this.limit)
 					.skip(skip)
 					.get()
 					.then(res => {
-						
-						if(skip==0){
+
+						if (skip == 0) {
 							this.list = res.data
-						}else{
-							if(res.data.length!==0){
+						} else {
+							if (res.data.length !== 0) {
 								this.loadingText = '钓点加载中...'
 								this.list.push(...res.data)
 								this.showLoading = false
-							}else{
+							} else {
 								// this.loadingText = '没有更多钓点了...'
 								// setTimeout(()=>{
 								// 	this.showLoading = false
-									
+
 								// },1000)
 							}
-							
+
 						}
-						
-						
+
+
 					})
 			},
 
 			// 滚动到底部
 			nextPage() {
-				
+
 				let count = basan.where({
-						'reviewed':1
-					}).count
-				
-				let page = Math.ceil(count/this.limit)
-				
-				if(this.skip<=page){
+					'reviewed': 1
+				}).count
+
+				let page = Math.ceil(count / this.limit)
+
+				if (this.skip <= page) {
 					this.skip++
 					this.loadingText = '钓点加载中...'
 					this.showLoading = true
 					this.refsList(this.skip)
-				}else{
+				} else {
 					this.loadingText = '没有更多钓点了...'
-					setTimeout(()=>{
+					setTimeout(() => {
 						this.showLoading = false
-						
-					},1000)
+
+					}, 1000)
 				}
-				
-				
-				
+
+
+
 			},
 			bindLogin() {
 				this.showAuth = true
 			},
 
 			initPage(openid) {
-				uni.getSetting({
-					success: (res) => {
-						if (res.authSetting['scope.userInfo']) {
-							user.where({
-								'_openid': openid
-							}).get().then(res => {
-								let {
-									data
-								} = res
-								if (data.length === 0) {
-									this.addUser()
-								} else {
-									this.userInfo = data[0]
-									uni.setStorageSync('userInfo', data[0])
-								}
-							})
-						} else {
-							uni.removeStorageSync('userInfo')
-							this.notLogin = true
-							
+				this.findUser(openid, () => {
+					uni.getSetting({
+						success: async (res) => {
+							if (res.authSetting['scope.userInfo']) {
+								this.addUser(openid)
+							} else {
+								uni.removeStorageSync('userInfo')
+								this.notLogin = true
+								this.showAuth = true
+							}
 						}
-					}
+					})
 				})
 			},
 
+			async findUser(openid, callback) {
+				try {
+					let getUser = await getUserByOpenid(openid)
+					let {
+						success,
+						data,
+						msg
+					} = getUser
 
-			addUser() {
+					if (success) {
+						if (!data) {
+							callback && callback()
+
+						} else {
+							this.userInfo = data
+							this.notLogin = false
+							uni.setStorageSync('userInfo', data)
+
+						}
+					}
+
+				} catch (e) {
+					console.error(e)
+				}
+			},
+
+
+			addUser(openid) {
 				uni.getUserInfo({
 					lang: 'zh_CN',
-					success: (res) => {
+					success: async (res) => {
 						let {
 							nickName,
 							city,
+							country,
 							province,
 							avatarUrl,
 							gender
 						} = res.userInfo
 						Vue.set(this.userInfo, 'nickName', nickName)
-						Vue.set(this.userInfo, 'city', city)
-						Vue.set(this.userInfo, 'province', province)
 						Vue.set(this.userInfo, 'avatarUrl', avatarUrl)
-						Vue.set(this.userInfo, 'gender', gender)
-						Vue.set(this.userInfo, 'fishingDot', 100)
-						Vue.set(this.userInfo, 'favorites', [])
-						Vue.set(this.userInfo, 'createTime', new Date())
-						let {
-							fishingDot,
-							favorites,
-							createTime,
-						} = this.userInfo
-						user.add({
-							data: {
-								nickName: nickName,
-								desc:'',
-								purview:'',
+						try {
+							let regu = await regUser({
+								nickName,
 								city,
+								country,
 								province,
 								avatarUrl,
 								gender,
-								fishingDot,
-								favorites,
-								createTime,
-							}
-						}).then(info => {
+								point: 100,
+								openid,
+							})
 							let {
-								errMsg
-							} = info
-							if (errMsg == 'collection.add:ok') {
+								success,
+								msg,
+								data
+							} = regu
+							if (success) {
 								this.showAuth = false
-								user.where({
-									'_openid': this.openid
-								}).get().then(re => {
-									let {
-										data
-									} = re
-									this.userInfo = data[0]
-									uni.setStorageSync('userInfo', data[0])
-								})
+								this.findUser(openid)
+							} else {
+								console.error(msg)
 							}
-						})
+
+						} catch (e) {
+							console.error(e)
+						}
 					}
 				})
 			},
@@ -291,20 +314,7 @@
 
 			bindGetUserInfo() {
 				this.showAuth = false
-				user.where({
-					'_openid': this.openid
-				}).get().then(res => {
-					let {
-						data
-					} = res
-					if (data.length === 0) {
-						this.addUser()
-					} else {
-						this.userInfo = data[0]
-						uni.setStorageSync('userInfo', data[0])
-					}
-					this.notLogin = false
-				})
+				this.initPage(this.openid)
 			},
 
 			getAuthorizeInfo(a = "scope.userLocation") { //1. uniapp弹窗弹出获取授权（地理，个人微信信息等授权信息）弹窗
@@ -322,8 +332,11 @@
 			getLocationInfo() { //2. 获取地理位置
 				var that = this;
 				uni.getLocation({
-					type: 'wgs84',
-					success(res) {}
+					type: 'gcj02',
+					success:(res)=>{
+					  this.lat = res.latitude.toString()
+					  this.lon = res.longitude.toString()
+					}
 				});
 			},
 			isGetLocation(a = "scope.userLocation") { // 3. 检查当前是否已经授权访问scope属性，参考下截图

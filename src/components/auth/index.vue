@@ -1,17 +1,16 @@
 <template>
 	<div class="auth" v-if="show">
 		<div class="autncontent">
-			<div class="title">您还没有注册，是否注册?</div>
+			<div class="title">温馨提示</div>
 			<div class="discribe">
-				<p class='sam'>我们会获取您的昵称、头像等信息</p>
+				<p class='sam'>大师！您还没登录呢！是否登陆？</p>
 			</div>
 			<div class="buttonbox">
-				<button class="cancel" @click="bindCancel()">取消</button>
-				<button class="ok" type="primary" open-type="getUserInfo" @getuserinfo="bindGetUserInfo">一键注册</button>
+				<button class="cancel" @click="bindCancel()">不用了谢谢</button>
+				<button class="ok" type="primary" open-type="getUserInfo" @getuserinfo="bindGetUserInfo">快速登陆</button>
 			</div>
 		</div>
 	</div>
-	
 </template>
 
 <script>

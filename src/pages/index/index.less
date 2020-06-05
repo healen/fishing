@@ -12,38 +12,46 @@
 		padding: 20upx;
 	}
 	.header{
-		background: #000;
-		height: 260upx;
+		height: 180upx;
 		width: 100%;
 		position: relative;
+		display: flex;
+		overflow: hidden;
 		.bg{
+			position: absolute;
+			left: 0;
+			top: 0;
+			opacity: .6;
 			width: 100%;
-			height: 260upx;
+			height: 180upx;
+			z-index: -1;
 		}
 		.avatar{
-			position: absolute;
-			width: 140upx;
-			height: 140upx;
-			right: 20upx;
-			bottom: -48upx;
-			border-radius: 20upx;
-			box-shadow: 1upx 1upx 5upx rgba(0,0,0,.5);
-			
+			width: 120upx;
+			height: 120upx;
+			border-radius: 10upx;
+			margin-left: 30upx;
+			margin-right: 20upx;
+			border: 1px solid #eee;
 			&.notlogin{
 				background: #FFFFFF;
 			}
 		}
 		.text{
-			position: absolute;
-			right: 185upx;
-			text-align: right;
 			height: 120upx;
-			line-height: 60upx;
+			line-height: 50upx;
 			bottom: -58upx;
 			.name{
-				font-size: 32upx;
+				font-size: 30upx;
 				font-weight: bold;
-				color: #FFFFFF;
+				color: #DD524D;
+				.wecom{
+					line-height: 40upx;
+					width: 70%;
+					font-weight: 400;
+					font-size: 26upx;
+					color: #999;
+				}
 			}
 			.add{
 				padding:0 0 20upx 0;
@@ -57,11 +65,12 @@
 				
 			}
 			.loginbtn{
-				color: #DD524D;
+				color: #007AFF;
+				font-weight: bold;
 				padding: 0upx 0upx;
 				background: none;
 				border-radius: 10upx;
-				font-size: 30upx;
+				font-size: 26upx;
 				border:none;
 				&::after{
 					border: none;

@@ -3,13 +3,13 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "爆户圈儿"
+				"navigationBarTitleText": "钓鱼圈儿"
 			}
 		},
 		{
 			"path": "pages/add/add",
 			"style": {
-				"navigationBarTitleText": "添加钓点"
+				"navigationBarTitleText": "add"
 			}
 		},
 		{

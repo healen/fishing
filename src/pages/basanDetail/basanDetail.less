@@ -1,4 +1,37 @@
 .detail{
+	padding: 20upx;
+	padding-bottom: 200upx;
+	
+	
+	.floatbox{
+		position: fixed;
+		width: 100upx;
+		left: 0upx;
+		bottom: 40upx;
+		width: 100%;
+		display: flex;
+		z-index: 999;
+		button{
+			
+			animation: scaleDraw 1000ms ease-in-out infinite;
+			border-radius: 75upx;
+			padding: 10upx 20upx;
+			line-height: 40upx;
+			font-size: 28upx;
+			height: 150upx;
+			color: #fff;
+			background:rgba(230,0,0,.8);
+			border-bottom: 1px solid #3F536E;
+			.ic{
+				margin-top: 15upx;
+				margin-bottom: 10upx;
+			}
+			
+			&:after{
+				border:none
+			}
+		}
+	}
 	.admins{
 		button{
 			margin-bottom: 40upx;
@@ -29,7 +62,7 @@
 		padding-top: 30upx;
 		
 	}
-	padding: 20upx;
+	
 	.btn{
 		margin-bottom: 30upx;
 	}
@@ -40,22 +73,26 @@
 		margin-bottom: 10upx;
 		
 	}
-	.p{
-		font-size: 30upx;
-		color: #666;
-		margin-bottom: 10upx;
+	
+	.h1{
+		font-size: 38upx;
+		color: #333333;
 	}
+
 	.p1{
 		font-size: 28upx;
 		color: #999999;
+		span{
+			color: #333333;
+		}
 	}
 	.bottom{
-		font-size: 28upx;
+		font-size: 26upx;
 		color: #999999;
 		display: flex;
 		justify-content: space-between;
-		margin-top: 20upx;
-		margin-bottom: 20upx;
+		margin-top: 5upx;
+		margin-bottom: 10upx;
 		flex-wrap: wrap;
 	}
 	.title{
@@ -78,5 +115,29 @@
 		image{
 			width: 100%;
 		}
+	}
+	
+	
+	
+	
+}
+
+
+@keyframes scaleDraw {  /*定义关键帧、scaleDrew关键帧名称*/
+	0%{
+		transform: scale(1);  /*开始为原始大小*/
+		// background:rgba(250,0,0,.8);
+	}
+	25%{
+		transform: scale(1.1); /*放大1.1倍*/
+		// background:rgba(250,0,0,1);
+	}
+	50%{
+		transform: scale(1);
+		// background:rgba(250,0,0,.8);
+	}
+	75%{
+		transform: scale(1.1);
+		// background:rgba(250,0,0,.1);
 	}
 }

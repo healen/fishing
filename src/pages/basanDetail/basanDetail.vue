@@ -2,6 +2,48 @@
 	<div class="detail" v-if="detail">
 		
 		
+		
+		<div class="floatbox">
+			
+			<button open-type="share">
+				<div class="ic"><m-icon type='fen_xiang'/></div>
+				<div>分享好友</div>
+			</button>
+			
+			<!-- <button>
+				<div class="ic"><m-icon type='favorite'/></div>
+				<div>收藏钓点</div>
+			</button> -->
+			
+			<button @click="goHome">
+				<div class="ic"><m-icon type='geng_duo'/></div>
+				<div>更多钓点</div>
+			</button>
+			
+			<button @click="goHome">
+				<div class="ic"><m-icon type='zhuye' size="16"/></div>
+				<div>返回首页</div>
+			</button>
+			
+		</div>
+		
+		
+		
+		
+		
+		
+		
+		
+		<div class="h1">
+			{{detail.desc}}
+		</div>
+		
+		<div class="bottom">
+			<div>发布人:{{detail.creater.nickName}}    {{detail.createTimeShow}}</div>
+		</div>
+		
+		
+		
 		<div class='labels'>[地址]</div>
 		<map class="map" :latitude="detail.lat" show-location :longitude="detail.lon" scale="12" :markers="markers" style="width:100%"></map>
 		<div class="address">
@@ -11,25 +53,23 @@
 			</div>
 		</div>
 		
-		<div class='labels'>[描述]</div>
-		
-		<div class="p">
-			{{detail.desc}}
-		</div>
+	
 		
 		
+		
+		<div class='labels'>[钓点详情]</div>
 		<div class="p1">
-			钓点类型:{{detail.basanType}}
+			<span>钓点类型：</span>{{detail.basanType}}
 		</div>
 		
 		<div class="p1">
-			鱼种:{{detail.fishType}}
+			<span>鱼种：</span>{{detail.fishType}}
 		</div>
-		<div class='labels'>[发布人]</div>
-		<div class="bottom">
-			<div>发布人：{{detail.creater.nickName}}</div>
-			<div>发布时间：{{detail.createTimeShow}}</div>
-		</div>
+		
+		
+		
+		
+		
 		<div class='labels'>[现场照片]</div>
 		<div class="imgs">
 			<div class="imglist" v-for="(pice,index) in detail.pictures" :key="index">
@@ -45,6 +85,8 @@
 </template>
 
 <script>
+	
+	import mIcon from '@/components/mIcon'
 	const db = wx.cloud.database({
 		env: 'fishing-7xw3p'
 	})
@@ -61,7 +103,14 @@
 				reviewed:0
 			}
 		},
-		onShareAppMessage(){
+		components:{
+			mIcon
+		},
+		onShareAppMessage(res){
+			return {
+				title:`[钓点分享]${this.detail.address},${this.detail.desc}`,
+				imageUrl:this.detail.pictures[0]
+			}
 			
 		},
 		onLoad(options) {
@@ -85,6 +134,13 @@
 			})
 		},
 		methods:{
+			
+			
+			goHome(){
+				uni.switchTab({
+					url:'/pages/index/index'
+				})
+			},
 			
 			
 			

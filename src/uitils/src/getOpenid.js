@@ -1,1 +1,0 @@
-import config from '@/config'export default async function getOpenid(){  const promise = new Promise((resolve,reject) =>{    wx.cloud.callFunction({      name:'get_openid',      complete:res=>{        resolve(res.result.openId)      }    })  })  return promise}
