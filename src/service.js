@@ -34,6 +34,7 @@ export async function getOpenid() {
 }
 
 
+
 /*
 注册用户 
  */
