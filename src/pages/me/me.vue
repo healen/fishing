@@ -2,11 +2,10 @@
 	<div>
 		<div class="mecontent">
 			<div class="header">
-
-				<div v-if="userInfo">
+				<div v-if="userInfo.nickName">
 					<image :src="userInfo.avatarUrl" mode="scaleToFill" class="avatar"></image>
 					<div class='nick'>{{userInfo.nickName}}</div>
-					<div class="discribe">{{userInfo.desc}}</div>
+					<div class="discribe">{{userInfo.des}}</div>
 					<div class='fishing'>
 						渔点: {{userInfo.point}}
 					</div>
@@ -14,43 +13,40 @@
 				<div v-else>
 					<image src="@/static/notlogin.png" mode="scaleToFill" class="avatar notlogin"></image>
 					<div class='nick'>未登录</div>
-					<button size="mini" class="loginbtn" @click="bindLogin">登陆</button>
+					<button size="mini" class="loginbtn" @click="bindLogin">快速登陆</button>
 				</div>
 			</div>
 			<div class="cont">
-
-
 				<div class="list use" @click="addBeson">
 					添加钓点
-				</div>
-
-				<div class="list" @click='nonono'>
-					编辑个人签名
-				</div>
-				<div class="list" @click='nonono'>
-					我收藏的钓点
 				</div>
 				<div class="list" @click='nonono'>
 					我的钓点
 				</div>
+				<div class="list" @click='nonono'>
+					我的收藏
+				</div>
 				
+				<div class="list" @click='nonono'>
+					修改个人信息
+				</div>
 				
-				<div class="list" v-if="userInfo._openid=='oUYIK0UjzBEtB_h8kX-wRF9jxfTE' || userInfo._openid=='oUYIK0S40dCzIiMHHZwYLE_YxYeo'" @click="goAdminIndex">钓点管理</div>
-
-
-
-
+				<template v-if='userInfo.purview ==2'>
+					<div class="list" @click="goAdminIndex">钓点管理</div>
+				</template>
+				<template v-if='userInfo.purview ==3'>
+					<div class="list" @click="goAdminIndex">用户管理</div>
+				</template>
+				
+				<template v-if='userInfo.purview ==4'>
+					<div class="list" @click="goAdminIndex">钓点管理</div>
+					<div class="list" @click="goAdminIndex">用户管理</div>
+				</template>
+				
 				<button class="posion" open-type="contact" session-from="weapp">
 					<div>提交宝贵意见</div>
 					<image src="@/static/xin.png" mode="scaleToFill"></image>
 				</button>
-
-
-
-
-
-
-
 			</div>
 		</div>
 		<auth :show="showAuth" @cancel="bindCancel()" @auth="bindGetUserInfo" />
@@ -58,16 +54,15 @@
 </template>
 
 <script>
-	const db = wx.cloud.database({
-		env: 'fishing-7xw3p'
-	})
-	const user = db.collection('user')
 	import auth from '@/components/auth/index.vue'
+	import {getUserByOpenid,regUser} from '@/service'
+	import Vue from 'vue'
 	export default {
 		data() {
 			return {
-				userInfo: null,
+				userInfo: {},
 				showAuth: false,
+				openid:''
 			}
 		},
 		components: {
@@ -75,10 +70,11 @@
 		},
 		onShow() {
 			let userInfo = uni.getStorageSync('userInfo')
+			this.openid = uni.getStorageSync('openid')
 			if (userInfo) {
 				this.userInfo = userInfo
-			} else {
-
+			}else{
+				this.showAuth = true
 			}
 		},
 		methods: {
@@ -103,7 +99,7 @@
 					})
 				} else {
 					uni.navigateTo({
-						url: '../add/add'
+						url: '../addBasan/addBasan'
 					})
 				}
 			},
@@ -114,21 +110,96 @@
 			bindLogin() {
 				this.showAuth = true
 			},
+			async findUser(openid, callback) {
+				try {
+					let getUser = await getUserByOpenid(openid)
+					let {
+						success,
+						data,
+						msg
+					} = getUser
+			
+					if (success) {
+						if (!data) {
+							callback && callback()
+			
+						} else {
+							this.userInfo = data
+							this.notLogin = false
+							uni.setStorageSync('userInfo', data)
+			
+						}
+					}
+			
+				} catch (e) {
+					console.error(e)
+				}
+			},
+			
+			addUser(openid) {
+				uni.getUserInfo({
+					lang: 'zh_CN',
+					success: async (res) => {
+						let {
+							nickName,
+							city,
+							country,
+							province,
+							avatarUrl,
+							gender
+						} = res.userInfo
+						Vue.set(this.userInfo, 'nickName', nickName)
+						Vue.set(this.userInfo, 'avatarUrl', avatarUrl)
+						try {
+							let regu = await regUser({
+								nickName,
+								city,
+								country,
+								province,
+								avatarUrl,
+								gender,
+								point: 100,
+								openid,
+							})
+							let {
+								success,
+								msg,
+								data
+							} = regu
+							if (success) {
+								this.showAuth = false
+								this.findUser(openid)
+							} else {
+								console.error(msg)
+							}
+			
+						} catch (e) {
+							console.error(e)
+						}
+					}
+				})
+			},
+			
+			
 			bindGetUserInfo() {
 				this.showAuth = false
-				user.where({
-					'_openid': this.openid
-				}).get().then(res => {
-					let {
-						data
-					} = res
-					if (data.length === 0) {
-						this.addUser()
-					} else {
-						this.userInfo = data[0]
-						uni.setStorageSync('userInfo', data[0])
+				
+				getUserByOpenid(this.openid).then(res=>{
+					let {msg,data,success} = res
+					if(success) {
+						if(data){
+							this.userInfo = data
+							uni.setStorageSync('userInfo',data)
+						}else{
+							console.log(this.openid,2)
+							
+							this.addUser(this.openid)
+						}
+					}else{
+						console.error(msg)
 					}
-					this.notLogin = false
+				}).catch(err=>{
+					console.error()(err)
 				})
 			},
 

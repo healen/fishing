@@ -317,5 +317,5 @@
 		height: 100%;
 		background: #fffbf7;
 	}
-  @import 'add.less';
+  @import 'addBasan.less';
 </style>

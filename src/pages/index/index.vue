@@ -24,23 +24,23 @@
 			</div>
 			<div class="inview">
 				<div class="list" v-for="(item,index) in list" :key="index">
-					<image :src="item.creater.avatarUrl" class="avatarsamll" mode="widthFix"></image>
+					<image v-if="item.avatarUrl" :src="item.avatarUrl" class="avatarsamll" mode="widthFix"></image>
 					<div class="right">
-						<div class="name">{{item.creater.nickName}}</div>
+						<div class="name" v-if='item.nickName'>{{item.nickName}}</div>
 						<div class="con">
-							{{item.desc}}
+							{{item.des}}
 						</div>
 
 						<div class="picbox">
-							<div class="pis" v-for="(pice,pindex) in item.pictures" :key="pindex">
-								<image :src="pice" mode="aspectFill"></image>
+							<div class="pis" v-for="(img,pindex) in item.imgs" :key="pindex">
+								<image :src="img" mode="aspectFill"></image>
 							</div>
 						</div>
 
 						<div class="time">
-							{{item.createTimeShow.slice(0,8)}}
-							{{item.address}}
-							<span class="goto" @click="goDetail(item._id)">查看详情</span>
+							{{item.createTime | fomatTime}}
+							{{item.address | distance(lat*1,lon*1,item.lat*1,item.lon*1)}}
+							<span class="goto" @click="goDetail(item.id)">查看详情</span>
 
 						</div>
 					</div>
@@ -56,32 +56,26 @@
 </template>
 
 <script>
-	const db = wx.cloud.database({
-		env: 'fishing-7xw3p'
-	})
-	const user = db.collection('user')
-	const basan = db.collection('basan')
-	const _ = db.command
-
 	import Vue from 'vue'
 	import auth from '@/components/auth/index.vue'
 	import {
 		getOpenid,
 		getUserByOpenid,
-		regUser
+		regUser,
+		getBasanList
 	} from '@/service'
 
 	export default {
 		data() {
 			return {
 				title: 'Hello',
-				lon:'',
-				lat:'',
+				lon: '',
+				lat: '',
 				list: [],
-				count: 0,
-				limit: 10,
+				total: 0,
+				pageSize: 20,
 				openid: '',
-				skip: 0,
+				page: 1,
 				showAuth: false,
 				notLogin: false,
 				loadingText: '',
@@ -110,8 +104,8 @@
 				}
 			}
 		},
-
-
+		
+	
 		onShareAppMessage() {
 
 		},
@@ -124,9 +118,8 @@
 				this.notLogin = false
 			}
 			this.isGetLocation();
-			this.refsList(this.skip);
+			this.refsList(this.page);
 			try {
-
 				let openid = await getOpenid()
 				if (openid) {
 					uni.setStorageSync('openid', openid)
@@ -163,57 +156,46 @@
 
 
 			// 刷新钓点列表
-			refsList(skip = 0) {
-				basan
-					.orderBy('createTime', 'desc')
-					.where({
-						'reviewed': 1
-					})
-					.limit(this.limit)
-					.skip(skip)
-					.get()
-					.then(res => {
-
-						if (skip == 0) {
-							this.list = res.data
+			refsList(page = 0) {
+				let {
+					lat,
+					lon,
+					pageSize
+				} = this
+				getBasanList({
+					type: 'index',
+					lat,
+					lon,
+					page,
+					pageSize
+				}).then(res => {
+					if (res.success) {
+						this.total = res.data.total;
+						if (page === 1) {
+							this.list = res.data.list;
 						} else {
-							if (res.data.length !== 0) {
-								this.loadingText = '钓点加载中...'
-								this.list.push(...res.data)
-								this.showLoading = false
-							} else {
-								// this.loadingText = '没有更多钓点了...'
-								// setTimeout(()=>{
-								// 	this.showLoading = false
-
-								// },1000)
-							}
-
+							this.list.push(...res.data.list)
 						}
-
-
-					})
+					} else {
+						console.error(res.msg)
+					}
+				}).catch(e => {
+					console.error(e)
+				})
 			},
 
 			// 滚动到底部
 			nextPage() {
-
-				let count = basan.where({
-					'reviewed': 1
-				}).count
-
-				let page = Math.ceil(count / this.limit)
-
-				if (this.skip <= page) {
-					this.skip++
+				let pageTotal = Math.ceil(this.total / this.pageSize)
+				if (this.page < pageTotal) {
+					this.page++
 					this.loadingText = '钓点加载中...'
 					this.showLoading = true
-					this.refsList(this.skip)
+					this.refsList(this.page)
 				} else {
 					this.loadingText = '没有更多钓点了...'
 					setTimeout(() => {
 						this.showLoading = false
-
 					}, 1000)
 				}
 
@@ -333,9 +315,9 @@
 				var that = this;
 				uni.getLocation({
 					type: 'gcj02',
-					success:(res)=>{
-					  this.lat = res.latitude.toString()
-					  this.lon = res.longitude.toString()
+					success: (res) => {
+						this.lat = res.latitude.toString()
+						this.lon = res.longitude.toString()
 					}
 				});
 			},
@@ -350,10 +332,7 @@
 						}
 					}
 				});
-			},
-			goAddData() {
-				this.isGetLocation()
-			},
+			}
 		}
 	}
 </script>

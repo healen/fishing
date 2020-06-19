@@ -7,7 +7,7 @@
 			}
 		},
 		{
-			"path": "pages/add/add",
+			"path": "pages/addBasan/addBasan",
 			"style": {
 				"navigationBarTitleText": "add"
 			}

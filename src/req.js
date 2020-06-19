@@ -21,8 +21,6 @@ class Request {
 				data,
 				method,
 				success(res) {
-					console.log(res)
-
 					if (res.statusCode !== 200) {
 						reject({
 							msg: '请求失败',
